@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'imu_node = kit_imu_driver.imu_node:main'
+            'imu_node = kit_imu_driver.mpu9250_node:main'
         ],
     },
 )
