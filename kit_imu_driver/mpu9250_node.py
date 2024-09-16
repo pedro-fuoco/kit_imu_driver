@@ -65,8 +65,7 @@ class MPU9250Node(Node):
                 elif e.errno == 16:
                     self.get_logger().error("Device busy while trying to change accel configuration, ignoring...")
                 else:
-                    self.get_logger().error("Unexpected error while configuring accel scale, ignoring...")
-                    print(e)
+                    self.get_logger().error(f"Unexpected error while configuring accel: {e}, ignoring...")
 
         if desired_anglvel_scale in available_anglvel_scales:
             try:
@@ -79,7 +78,7 @@ class MPU9250Node(Node):
                 elif e.errno == 16:
                     self.get_logger().error("Device busy while trying to change angvel configuration, ignoring...")
                 else:
-                    self.get_logger().error("Unexpected error while configuring anglvel scale, ignoring...")
+                    self.get_logger().error(f"Unexpected error while configuring angvel: {e}, ignoring...")
 
         if desired_sampling_frequency in available_sampling_frequencies:
             try:
@@ -90,7 +89,7 @@ class MPU9250Node(Node):
                 elif e.errno == 16:
                     self.get_logger().error("Device busy while trying to change sampling frequency configuration, ignoring...")
                 else:
-                    self.get_logger().error("Unexpected error while configuring sampling frequency, ignoring...")
+                    self.get_logger().error(f"Unexpected error while configuring sampling frequency: {e}, ignoring...")
 
         imu_node_update_frequency = self.get_parameter('imu_node.update_frequency').value
 
@@ -144,6 +143,7 @@ class MPU9250Node(Node):
         temp = int.from_bytes(data[6:8], byteorder='big', signed=True)
         
         timestamp = int.from_bytes(data[-8:], byteorder='little', signed=False)
+        
 
         accel_scale = float(self.accel_x.attrs['scale'].value)
         gyro_scale = float(self.anglvel_x.attrs['scale'].value)
@@ -153,7 +153,8 @@ class MPU9250Node(Node):
 
 
         header = Header()
-        header.stamp.sec = timestamp
+        header.stamp.sec = timestamp // 10**9
+        header.stamp.nanosec = timestamp % 10**9
         header.frame_id = "imu_link"
 
         imu_msg = Imu()
@@ -176,7 +177,7 @@ class MPU9250Node(Node):
 
         temp_msg = Temperature()
         temp_msg.header = imu_msg.header
-        temp_msg.temperature = (temp - temp_offset) * temp_scale
+        temp_msg.temperature = (temp + temp_offset) * temp_scale / 1000.0
 
         self.imu_pub.publish(imu_msg)
         self.magn_pub.publish(magn_msg)
