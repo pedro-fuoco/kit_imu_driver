@@ -1,0 +1,7 @@
+kit_imu:
+  ros__parameters:
+    mpu9250:
+      scale:
+        accel: 0.000598
+        anglvel: 0.000133090
+      sampling_frequency: 50

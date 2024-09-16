@@ -50,15 +50,21 @@ class MPU9250Node(Node):
         self.temp_pub = self.create_publisher(Temperature, 'kit/imu/temp', 10)
 
         # Declara parâmetros ROS 2 com valores padrão
-        self.declare_parameter('mpu9250.scale.accel_scale', 0.000598)
-        self.declare_parameter('mpu9250.scale.anglvel_scale', 0.000133090)
+        self.declare_parameter('mpu9250.scale.accel', 0.000598)
+        self.declare_parameter('mpu9250.scale.anglvel', 0.000133090)
         self.declare_parameter('mpu9250.sampling_frequency', 50)
-        self.declare_parameter('imu_node.update_frequency', 10)
 
         # Obtém valores dos parâmetros, que podem ser personalizados
-        desired_accel_scale = self.get_parameter('mpu9250.scale.accel_scale').value
-        desired_anglvel_scale = self.get_parameter('mpu9250.scale.anglvel_scale').value
+        desired_accel_scale = self.get_parameter('mpu9250.scale.accel').value
+        desired_anglvel_scale = self.get_parameter('mpu9250.scale.anglvel').value
         desired_sampling_frequency = self.get_parameter('mpu9250.sampling_frequency').value
+
+        self.get_logger().info(
+            'IMU initialized with the following configuration: \n' 
+            f'Accel scale: {desired_accel_scale}, '
+            f'Anglvel scale: {desired_anglvel_scale}, '
+            f'Sampling frequency: {desired_sampling_frequency}'
+        )
 
         # Configura a escala dos canais de aceleração, se o valor desejado estiver disponível
         available_accel_scales = [float(scale) for scale in self.accel_x.attrs['scale_available'].value.split(' ')]
@@ -89,8 +95,7 @@ class MPU9250Node(Node):
                 self.handle_iio_write_error(e, "sampling frequency")
 
         # Configura a frequência de atualização do nó
-        imu_node_update_frequency = self.get_parameter('imu_node.update_frequency').value
-        self.timer = self.create_timer(1/imu_node_update_frequency, self.publish_imu_data)
+        self.timer = self.create_timer(1/int(self._mpu.attrs['sampling_frequency'].value), self.publish_imu_data)
 
         # Ativa todos os canais de leitura do MPU9250
         self.accel_x.enabled = True
