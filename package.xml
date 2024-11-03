@@ -3,14 +3,9 @@
 <package format="3">
   <name>kit_imu_driver</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="pedro-fuoco@todo.todo">pedro-fuoco</maintainer>
-  <license>TODO: License declaration</license>
-
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+  <description>ROS 2 IMU driver for Kit de Robotica</description>
+  <maintainer email="pedrofuoco6@gmail.com">pedro-fuoco</maintainer>
+  <license>MIT</license>
 
   <export>
     <build_type>ament_python</build_type>

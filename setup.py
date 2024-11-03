@@ -17,10 +17,9 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='pedro-fuoco',
-    maintainer_email='pedro-fuoco@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
-    tests_require=['pytest'],
+    maintainer_email='pedrofuoco6@gmail.com',
+    description='ROS 2 IMU driver for Kit de Robotica',
+    license='MIT',
     entry_points={
         'console_scripts': [
             'imu_node = kit_imu_driver.mpu9250_node:main'
