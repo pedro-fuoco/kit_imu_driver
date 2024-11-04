@@ -82,8 +82,11 @@ source install/setup.sh
 colcon build --packages-select kit_imu_driver
 ```
 
+## Transformadas e eixos de coordenadas
+Esse pacote publica os dados da IMU no eixo de coordenadas "imu_link". Porém, os demais nodes ROS do Kit de robótica fazem calculos com o eixo de coordenadas da base do robô, conhecido como "base_link". Por conta disso, precisamos estabelecer uma transformação estática entre "imu_link" e "base_link", para que os demais nodes ROS possam utilizar os dados do acelerômetro no referencial da base do robô.
+
 ## Launch
-Para iniciar os programas `imu_node` e `imu_complementary_filter`, responsáveis por publicar os topicos de IMU, MagneticField e Temperature, e o filtro que faz a fusão de sensores para publicar a orientação do robô, respectivamente, basta utilizar o seguinte comando:
+Para iniciar os programas `imu_node`, `imu_complementary_filter` e `static_transform_publisher`, responsáveis por publicar os topicos de IMU, MagneticField e Temperature, calcular a orientação do robô através dos dados crûs da IMU, e publicar a transformação estática entre os eixos do robô, respectivamente, basta utilizar o seguinte comando:
 ```bash
 ros2 launch kit_imu_driver imu_launch.py
 ```

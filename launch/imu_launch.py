@@ -39,5 +39,11 @@ def generate_launch_description():
             name='kit_imu_filter',
             namespace='kit',
             parameters=[{'publish_tf': debug}]
-        )
+        ),
+     Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_transform_imu_to_base',
+        arguments=['0.12', '0', '0', '0', '0', '0', 'base_link', 'imu_link']
+    )
     ])
