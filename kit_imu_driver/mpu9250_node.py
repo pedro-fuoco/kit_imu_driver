@@ -75,6 +75,8 @@ class MPU9250Node(Node):
                 self.accel_z.attrs['scale'].value = str(desired_accel_scale)
             except OSError as e:
                 self.handle_iio_write_error(e, "accel scale")
+        else:
+            self.get_logger().error('Desired accel scale is out of bounds! Check available scales')
 
         # Configura a escala dos canais de velocidade angular, se o valor desejado estiver disponível
         available_anglvel_scales = [float(scale) for scale in self.anglvel_x.attrs['scale_available'].value.split(' ')]
@@ -85,6 +87,8 @@ class MPU9250Node(Node):
                 self.anglvel_z.attrs['scale'].value = str(desired_anglvel_scale)
             except OSError as e:
                 self.handle_iio_write_error(e, "anglvel scale")
+        else:
+            self.get_logger().error('Desired angvel scale is out of bounds! Check available scales')
 
         # Configura a frequência de amostragem, se o valor desejado estiver disponível
         available_sampling_frequencies = [float(freq) for freq in self._mpu.attrs['sampling_frequency_available'].value.split(' ')]
@@ -93,7 +97,9 @@ class MPU9250Node(Node):
                 self._mpu.attrs['sampling_frequency_available'].value = str(desired_sampling_frequency)
             except OSError as e:
                 self.handle_iio_write_error(e, "sampling frequency")
-
+        else:
+            self.get_logger().error('Desired sampling frequency is out of bounds! Check available sampling frequencies')
+        
         # Configura a frequência de atualização do nó
         self.timer = self.create_timer(1/int(self._mpu.attrs['sampling_frequency'].value), self.publish_imu_data)
 
