@@ -52,7 +52,7 @@ class MPU9250Node(Node):
         # Declara parâmetros ROS 2 com valores padrão
         self.declare_parameter('mpu9250.scale.accel', 0.000598)
         self.declare_parameter('mpu9250.scale.anglvel', 0.000133090)
-        self.declare_parameter('mpu9250.sampling_frequency', 50)
+        self.declare_parameter('mpu9250.sampling_frequency', 20)
 
         # Obtém valores dos parâmetros, que podem ser personalizados
         desired_accel_scale = self.get_parameter('mpu9250.scale.accel').value
@@ -76,7 +76,7 @@ class MPU9250Node(Node):
             except OSError as e:
                 self.handle_iio_write_error(e, "accel scale")
         else:
-            self.get_logger().error('Desired accel scale is out of bounds! Check available scales')
+            self.get_logger().error('Desired accel scale is out of bounds! Check available scales ' + str(available_accel_scales))
 
         # Configura a escala dos canais de velocidade angular, se o valor desejado estiver disponível
         available_anglvel_scales = [float(scale) for scale in self.anglvel_x.attrs['scale_available'].value.split(' ')]
@@ -88,17 +88,17 @@ class MPU9250Node(Node):
             except OSError as e:
                 self.handle_iio_write_error(e, "anglvel scale")
         else:
-            self.get_logger().error('Desired angvel scale is out of bounds! Check available scales')
+            self.get_logger().error('Desired angvel scale is out of bounds! Check available scales ' + str(available_anglvel_scales))
 
         # Configura a frequência de amostragem, se o valor desejado estiver disponível
         available_sampling_frequencies = [float(freq) for freq in self._mpu.attrs['sampling_frequency_available'].value.split(' ')]
         if desired_sampling_frequency in available_sampling_frequencies:
             try:
-                self._mpu.attrs['sampling_frequency_available'].value = str(desired_sampling_frequency)
+                self._mpu.attrs['sampling_frequency'].value = str(desired_sampling_frequency)
             except OSError as e:
                 self.handle_iio_write_error(e, "sampling frequency")
         else:
-            self.get_logger().error('Desired sampling frequency is out of bounds! Check available sampling frequencies')
+            self.get_logger().error('Desired sampling frequency is out of bounds! Check available sampling frequencies ' + str(available_sampling_frequencies))
         
         # Configura a frequência de atualização do nó
         self.timer = self.create_timer(1/int(self._mpu.attrs['sampling_frequency'].value), self.publish_imu_data)
@@ -136,7 +136,7 @@ class MPU9250Node(Node):
     def handle_iio_write_error(self, error, configuration_type):
         # Trata erros específicos de configuração de escala do dispositivo
         if error.errno == 22:
-            self.get_logger().error(f"Unavailable {configuration_type} configuration, ignoring...")
+            self.get_logger().error(f"Invalid argument when configuring {configuration_type} , ignoring...")
         elif error.errno == 16:
             self.get_logger().error(f"Device busy while trying to change {configuration_type} configuration, ignoring...")
         else:
