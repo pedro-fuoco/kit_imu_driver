@@ -4,4 +4,4 @@ kit_imu:
       scale:
         accel: 0.000598
         anglvel: 0.000133090
-      sampling_frequency: 50
+      sampling_frequency: 20
