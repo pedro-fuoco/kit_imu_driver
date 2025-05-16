@@ -53,17 +53,27 @@ class MPU9250Node(Node):
         self.declare_parameter('mpu9250.scale.accel', 0.000598)
         self.declare_parameter('mpu9250.scale.anglvel', 0.000133090)
         self.declare_parameter('mpu9250.sampling_frequency', 20)
+        self.declare_parameter('user_calibration.accelerometer_scale.x', 1.0)
+        self.declare_parameter('user_calibration.accelerometer_scale.y', 1.0)
+        self.declare_parameter('user_calibration.accelerometer_scale.z', 1.0)
+        self.declare_parameter('user_calibration.accelerometer_offset.x', 0.0)
+        self.declare_parameter('user_calibration.accelerometer_offset.y', 0.0)
+        self.declare_parameter('user_calibration.accelerometer_offset.z', 0.0)
 
         # Obtém valores dos parâmetros, que podem ser personalizados
         desired_accel_scale = self.get_parameter('mpu9250.scale.accel').value
         desired_anglvel_scale = self.get_parameter('mpu9250.scale.anglvel').value
         desired_sampling_frequency = self.get_parameter('mpu9250.sampling_frequency').value
+        self.accelerometer_calibration_scale = [self.get_parameter('user_calibration.accelerometer_scale.x').value, self.get_parameter('user_calibration.accelerometer_scale.y').value, self.get_parameter('user_calibration.accelerometer_scale.z').value]
+        self.accelerometer_calibration_offset = [self.get_parameter('user_calibration.accelerometer_offset.x').value, self.get_parameter('user_calibration.accelerometer_offset.y').value, self.get_parameter('user_calibration.accelerometer_offset.z').value]
 
         self.get_logger().info(
             'IMU initialized with the following configuration: \n' 
             f'Accel scale: {desired_accel_scale}, '
             f'Anglvel scale: {desired_anglvel_scale}, '
-            f'Sampling frequency: {desired_sampling_frequency}'
+            f'Sampling frequency: {desired_sampling_frequency}, '
+            f'Accelerometer calibration scale: {self.accelerometer_calibration_scale}, '
+            f'Accelerometer calibration offset: {self.accelerometer_calibration_offset}'
         )
 
         # Configura a escala dos canais de aceleração, se o valor desejado estiver disponível
@@ -176,9 +186,9 @@ class MPU9250Node(Node):
         # Cria e publica a mensagem IMU
         imu_msg = Imu()
         imu_msg.header = header
-        imu_msg.linear_acceleration.x = accel_x * accel_scale
-        imu_msg.linear_acceleration.y = accel_y * accel_scale
-        imu_msg.linear_acceleration.z = accel_z * accel_scale
+        imu_msg.linear_acceleration.x = accel_x * accel_scale * self.accelerometer_calibration_scale[0] + self.accelerometer_calibration_offset[0]
+        imu_msg.linear_acceleration.y = accel_y * accel_scale * self.accelerometer_calibration_scale[1] + self.accelerometer_calibration_offset[1]
+        imu_msg.linear_acceleration.z = accel_z * accel_scale * self.accelerometer_calibration_scale[2] + self.accelerometer_calibration_offset[2]
         imu_msg.angular_velocity.x = anglvel_x * gyro_scale
         imu_msg.angular_velocity.y = anglvel_y * gyro_scale
         imu_msg.angular_velocity.z = anglvel_z * gyro_scale

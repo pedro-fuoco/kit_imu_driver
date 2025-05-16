@@ -5,3 +5,12 @@ kit_imu:
         accel: 0.000598
         anglvel: 0.000133090
       sampling_frequency: 20
+    user_calibration:
+      accelerometer_scale:
+        x: 0.99936644
+        y: 0.99999395
+        z: 0.99451237
+      accelerometer_offset:
+        x: -0.23893592
+        y: -0.21940655
+        z: 0.54497985
